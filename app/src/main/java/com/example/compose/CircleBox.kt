@@ -1,16 +1,24 @@
 package com.example.compose
 
 
+import android.util.Log
+import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.layout.LayoutScopeMarker
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.layout.Measurable
 import androidx.compose.ui.layout.MeasurePolicy
+import androidx.compose.ui.layout.MeasureResult
+import androidx.compose.ui.layout.MeasureScope
 import androidx.compose.ui.layout.Placeable
 import androidx.compose.ui.node.ModifierNodeElement
 import androidx.compose.ui.node.ParentDataModifierNode
@@ -22,22 +30,41 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
 import java.lang.Math.min
+import kotlin.math.atan2
 import kotlin.math.cos
 import kotlin.math.max
 import kotlin.math.sin
 
+
 @Composable
 inline fun CircleBox(
     modifier: Modifier = Modifier,
-    contentAlignment: Alignment = Alignment.TopStart,
     propagateMinConstraints: Boolean = false,
     content: @Composable CircleBoxScope.() -> Unit
 ) {
-    val measurePolicy = rememberBoxMeasurePolicy(contentAlignment, propagateMinConstraints)
+
+    var rotateDegree by remember {
+        mutableFloatStateOf(0F)
+    }
+
+    val measurePolicy = rememberBoxMeasurePolicy(Alignment.Center, propagateMinConstraints,rotateDegree)
+
     Layout(
         content = { CircleBoxScopeInstance.content() },
         measurePolicy = measurePolicy,
-        modifier = modifier
+        modifier = modifier then Modifier.pointerInput("CircleBoxInputEvent"){
+            var startDegree = 0F
+
+            detectDragGestures { change, dragAmount ->
+                val dr = atan2(change.position.y.toDouble() - size.height/2f, change.position.x.toDouble() - size.width/2f);
+                var toFloat = (dr - startDegree).toFloat()
+                if(toFloat == Float.POSITIVE_INFINITY || toFloat == Float.NEGATIVE_INFINITY){
+                    toFloat = 0F
+                }
+                rotateDegree +=  toFloat
+                startDegree = dr.toFloat();
+            }
+        }
     )
 }
 
@@ -45,21 +72,26 @@ inline fun CircleBox(
 @Composable
 internal fun rememberBoxMeasurePolicy(
     alignment: Alignment,
-    propagateMinConstraints: Boolean
-) = if (alignment == Alignment.TopStart && !propagateMinConstraints) {
-    DefaultBoxMeasurePolicy
-} else {
-    remember(alignment, propagateMinConstraints) {
-        boxMeasurePolicy(alignment, propagateMinConstraints)
-    }
+    propagateMinConstraints: Boolean,
+    rotateDegree: Float
+) =  remember(alignment, propagateMinConstraints,rotateDegree) {
+    circleBoxMeasurePolicy(alignment, propagateMinConstraints,rotateDegree)
 }
 
-internal val DefaultBoxMeasurePolicy: MeasurePolicy = boxMeasurePolicy(Alignment.TopStart, false)
+internal class CircleBoxMeasurePolicy (
+     var alignment: Alignment,
+     var propagateMinConstraints: Boolean = false,
+     var rotateDegree: Float = 0F
+): MeasurePolicy {
+    override fun MeasureScope.measure(
+        measurables: List<Measurable>,
+        constraints: Constraints
+    ): MeasureResult {
 
-internal fun boxMeasurePolicy(alignment: Alignment, propagateMinConstraints: Boolean) =
-    MeasurePolicy { measurables, constraints ->
+        Log.d(TAG,"rotateDegree = $rotateDegree")
+
         if (measurables.isEmpty()) {
-            return@MeasurePolicy layout(
+            return layout(
                 constraints.minWidth,
                 constraints.minHeight
             ) {}
@@ -87,7 +119,7 @@ internal fun boxMeasurePolicy(alignment: Alignment, propagateMinConstraints: Boo
                     Constraints.fixed(constraints.minWidth, constraints.minHeight)
                 )
             }
-            return@MeasurePolicy layout(boxWidth, boxHeight) {
+            return layout(boxWidth, boxHeight) {
                 placeInBox(placeable, measurable, layoutDirection, boxWidth, boxHeight, alignment)
             }
         }
@@ -106,20 +138,28 @@ internal fun boxMeasurePolicy(alignment: Alignment, propagateMinConstraints: Boo
         }
 
 
-        val radian = Math.toRadians((360 / placeables.size).toDouble());
+        val radian = Math.toRadians((360 / placeables.size).toDouble()) ;
         val radius = min(constraints.minWidth, constraints.minHeight) / 2;
         // Specify the size of the Box and position its children.
-        layout(boxWidth, boxHeight) {
+       return layout(boxWidth, boxHeight) {
             placeables.forEachIndexed { index, placeable ->
                 placeable as Placeable
                 val innerRadius = radius - max(placeable.height,placeable.width);
-                val x = cos(radian * index) * innerRadius + boxWidth / 2F - placeable.width / 2F;
-                val y = sin(radian * index) * innerRadius + boxHeight / 2F - placeable.height / 2F;
+                val x = cos(radian * index + rotateDegree) * innerRadius + boxWidth / 2F - placeable.width / 2F;
+                val y = sin(radian * index + rotateDegree) * innerRadius + boxHeight / 2F - placeable.height / 2F;
                 placeable.place(IntOffset(x.toInt(), y.toInt()))
 
             }
         }
     }
+
+}
+internal fun circleBoxMeasurePolicy(
+    alignment: Alignment,
+    propagateMinConstraints: Boolean,
+    rotateDegree: Float
+) =
+    CircleBoxMeasurePolicy(alignment,propagateMinConstraints,rotateDegree)
 
 
 @Composable

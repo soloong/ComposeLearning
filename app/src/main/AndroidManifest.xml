@@ -24,6 +24,17 @@
             </intent-filter>
         </activity>
         <activity
+            android:name=".BookActivity"
+            android:exported="true"
+            android:label="@string/app_name"
+            android:theme="@style/Theme.Compose">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
             android:name=".GuaguaCardActivity"
             android:exported="true"
             android:label="@string/app_name"

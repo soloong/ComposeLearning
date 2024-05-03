@@ -11,6 +11,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Composer
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
@@ -27,7 +28,16 @@ class CircleMenuActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        val menuItems = arrayOf("A", "B", "C", "D", "E", "F","G")
+    //    val menuItems = arrayOf("A", "B", "C", "D", "E", "F","G")
+        val menuItems = mapOf<String,Color>(
+            "A" to Color.hsl((360 * Math.random()).toFloat(), 0.5F, 0.5F),
+            "B" to Color.hsl((360 * Math.random()).toFloat(), 0.5F, 0.5F),
+            "C" to Color.hsl((360 * Math.random()).toFloat(), 0.5F, 0.5F),
+            "D" to Color.hsl((360 * Math.random()).toFloat(), 0.5F, 0.5F),
+            "E" to Color.hsl((360 * Math.random()).toFloat(), 0.5F, 0.5F),
+            "F" to Color.hsl((360 * Math.random()).toFloat(), 0.5F, 0.5F),
+            "G" to Color.hsl((360 * Math.random()).toFloat(), 0.5F, 0.5F)
+        )
 
         setContent {
             ComposeTheme {
@@ -36,27 +46,9 @@ class CircleMenuActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    CircleBox(modifier = Modifier.fillMaxSize().pointerInput("hello"){
-
-                        awaitPointerEventScope {
-                            while (true) {
-                                val event = awaitPointerEvent()
-                                when (event.type) {
-                                    //按住时，更新起始点
-                                    PointerEventType.Press -> {
-
-                                    }
-                                    //移动时，更新起始点 移动时，记录路径path
-                                    PointerEventType.Move -> {
-                                    }
-                                }
-                            }
-                        }
-
-                    }) {
+                    CircleBox(modifier = Modifier.fillMaxSize()) {
                         menuItems.forEach {
-                            val color = Color.hsl((360 * Math.random()).toFloat(), 0.5F, 0.5F)
-                            MenuBox(it, color);
+                            MenuBox(it.key, it.value);
                         }
                     }
 
