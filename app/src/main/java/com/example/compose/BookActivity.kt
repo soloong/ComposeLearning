@@ -638,7 +638,7 @@ class Page {
         const val STATE_DRAGING_MIDDLE = 3
         const val STATE_DRAGING_BOTTOM = 4
 
-        const val CONTROL_MAX_OFFSET = 50
+        const val CONTROL_MAX_OFFSET = 40
 
     }
 }
