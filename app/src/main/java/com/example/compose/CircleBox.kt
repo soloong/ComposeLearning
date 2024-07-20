@@ -47,7 +47,7 @@ inline fun CircleBox(
         mutableFloatStateOf(0F)
     }
 
-    val measurePolicy = rememberBoxMeasurePolicy(Alignment.Center, propagateMinConstraints,rotateDegree)
+    val measurePolicy = rememberSwipeRefreshMeasurePolicy(Alignment.Center, propagateMinConstraints,rotateDegree)
 
     Layout(
         content = { CircleBoxScopeInstance.content() },
@@ -70,7 +70,7 @@ inline fun CircleBox(
 
 @PublishedApi
 @Composable
-internal fun rememberBoxMeasurePolicy(
+internal fun rememberSwipeRefreshMeasurePolicy(
     alignment: Alignment,
     propagateMinConstraints: Boolean,
     rotateDegree: Float

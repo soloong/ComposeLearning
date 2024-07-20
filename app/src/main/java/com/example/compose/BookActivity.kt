@@ -110,13 +110,14 @@ class BookActivity() : ComponentActivity() {
                         Text(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(5.dp),
+                                .padding(15.dp),
                             text = "\t\t他清楚的知道，这个实验成功的概率是多么的低，他望着窗台的透进来的晨光，内心无比的焦灼，这才是早上九点种，但他仿佛看到了落日的余晖。"
                                     +"\n\t\t病床的男人抽搐不停，他已经没有多长时间了，长期的抽搐，导致他无法入眠，如果这种状态再延续下去，走向人生的重点已成必然。"
                                     +"\n\t\t梁雨，你有什么遗言么？"
                                     +"\n\t\t他从窗台方向转向过来，看见他的初中老同学张铭生。"
                                     +"\n\t\t我能有什么遗言，孤家寡人而已!"
                                     +"\n\t\t嗯～啊？不想给张桐说几句么？听说她离婚了"
+                                    +"\n\t\t她说有很多话要对你说"
                         )
                     }
                 }
@@ -235,7 +236,7 @@ class BookActivity() : ComponentActivity() {
                 //翻转图像
                 val matrix = Matrix()
                 matrix[0,0] = -1f;
-                matrix[3,0] = canvas.size.width;
+                matrix[3,0] = canvas.size.width
                 snapshotCanvas.concat(matrix)
 
                 performDrawMethod.invoke(canvas, drawModifierNode, snapshotCanvas)
